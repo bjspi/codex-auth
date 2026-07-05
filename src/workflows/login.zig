@@ -17,6 +17,7 @@ fn loginScratchCodexHomeAlloc(allocator: std.mem.Allocator, codex_home: []const 
 }
 
 pub fn handleLogin(allocator: std.mem.Allocator, codex_home: []const u8, opts: cli.types.LoginOptions) !void {
+    const alias = opts.alias orelse "";
     var reg = try registry.loadRegistry(allocator, codex_home);
     defer reg.deinit(allocator);
     if (reg.accounts.items.len > 0) {
@@ -53,7 +54,7 @@ pub fn handleLogin(allocator: std.mem.Allocator, codex_home: []const u8, opts: c
         try registry.ensureAccountsDir(allocator, codex_home);
         try registry.copyManagedFile(auth_path, dest);
 
-        const record = try registry.accountFromApiKeyMe(allocator, "", &info, &me);
+        const record = try registry.accountFromApiKeyMe(allocator, alias, &info, &me);
         try registry.upsertAccount(allocator, &reg, record);
         try registry.setActiveAccountKey(allocator, &reg, record_key);
         try registry.saveRegistry(allocator, codex_home, &reg);
@@ -69,9 +70,11 @@ pub fn handleLogin(allocator: std.mem.Allocator, codex_home: []const u8, opts: c
     try registry.ensureAccountsDir(allocator, codex_home);
     try registry.copyManagedFile(auth_path, dest);
 
-    const record = try registry.accountFromAuth(allocator, "", &info);
+    const record = try registry.accountFromAuth(allocator, alias, &info);
     try registry.upsertAccount(allocator, &reg, record);
     try registry.setActiveAccountKey(allocator, &reg, record_key);
-    _ = try refreshAccountNamesAfterLogin(allocator, &reg, &info, defaultAccountFetcher);
+    if (!opts.skip_api and reg.api.account) {
+        _ = try refreshAccountNamesAfterLogin(allocator, &reg, &info, defaultAccountFetcher);
+    }
     try registry.saveRegistry(allocator, codex_home, &reg);
 }

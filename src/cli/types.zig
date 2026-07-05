@@ -11,6 +11,8 @@ pub const ListOptions = struct {
 };
 pub const LoginOptions = struct {
     device_auth: bool = false,
+    skip_api: bool = false,
+    alias: ?[]const u8 = null,
 };
 pub const ImportSource = enum { standard, cpa };
 pub const ImportOptions = struct {
@@ -58,7 +60,13 @@ pub const CleanOptions = struct {
 pub const LiveOptions = struct {
     interval_seconds: u16,
 };
-pub const ConfigOptions = union(enum) { live: LiveOptions };
+pub const SkipApiConfigOptions = struct {
+    enabled: bool,
+};
+pub const ConfigOptions = union(enum) {
+    live: LiveOptions,
+    skip_api: SkipApiConfigOptions,
+};
 pub const AppAction = enum { launch };
 pub const AppPlatform = enum { win, wsl, mac };
 pub const AppOptions = struct {

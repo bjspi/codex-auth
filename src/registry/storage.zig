@@ -304,6 +304,7 @@ fn loadLegacyRegistryV2(
     }
 
     parseRegistryLiveConfig(&reg.live, root_obj);
+    parseRegistryApiConfig(&reg.api, root_obj);
 
     for (legacy_accounts.items) |*legacy| {
         try migrateLegacyRecord(allocator, codex_home, &reg, legacy_active_email, legacy);
@@ -352,6 +353,7 @@ fn loadCurrentRegistry(allocator: std.mem.Allocator, root_obj: std.json.ObjectMa
     }
 
     parseRegistryLiveConfig(&reg.live, root_obj);
+    parseRegistryApiConfig(&reg.api, root_obj);
 
     return reg;
 }
@@ -395,6 +397,21 @@ fn parseRegistryLiveConfig(live: *LiveConfig, root_obj: std.json.ObjectMap) void
     }
     if (root_obj.get("live")) |v| {
         parseLiveConfig(live, v);
+    }
+}
+
+fn parseRegistryApiConfig(api: *common.ApiConfig, root_obj: std.json.ObjectMap) void {
+    if (root_obj.get("api_usage_enabled")) |v| {
+        switch (v) {
+            .bool => |b| api.usage = b,
+            else => {},
+        }
+    }
+    if (root_obj.get("api_account_enabled")) |v| {
+        switch (v) {
+            .bool => |b| api.account = b,
+            else => {},
+        }
     }
 }
 

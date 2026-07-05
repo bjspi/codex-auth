@@ -38,7 +38,7 @@ pub fn writeHelp(
     try writeCommandSummary(out, use_color, "--version, -V", "Show version");
     try writeCommandSummary(out, use_color, "-", "Switch to the previous active account");
     try writeCommandSummary(out, use_color, "list [--live] [--active] [--api|--skip-api]", "List available accounts");
-    try writeCommandSummary(out, use_color, "login [--device-auth]", "Login and add the current account");
+    try writeCommandSummary(out, use_color, "login [--device-auth] [--alias <alias>] [--skip-api]", "Login and add the current account");
     try writeCommandSummary(out, use_color, "import", "Import auth files or rebuild registry");
     try writeCommandDetail(out, use_color, "import <path> [--alias <alias>]");
     try writeCommandDetail(out, use_color, "import --cpa [<path>] [--alias <alias>]");
@@ -59,6 +59,7 @@ pub fn writeHelp(
     try writeCommandDetail(out, use_color, "clean background");
     try writeCommandSummary(out, use_color, "config", "Manage configuration");
     try writeCommandDetail(out, use_color, "config live --interval <seconds>");
+    try writeCommandDetail(out, use_color, "config skip-api on|off");
     try writeCommandSummary(out, use_color, "app", "Launch Codex App with CLI overrides");
 
     try out.writeAll("\n");
@@ -197,6 +198,8 @@ fn writeUsageLines(out: *std.Io.Writer, topic: HelpTopic) !void {
         .login => {
             try out.writeAll("  codex-auth login\n");
             try out.writeAll("  codex-auth login --device-auth\n");
+            try out.writeAll("  codex-auth login --alias <alias>\n");
+            try out.writeAll("  codex-auth login --skip-api\n");
         },
         .import_auth => {
             try out.writeAll("  codex-auth import <path> [--alias <alias>]\n");
@@ -227,6 +230,7 @@ fn writeUsageLines(out: *std.Io.Writer, topic: HelpTopic) !void {
         },
         .config => {
             try out.writeAll("  codex-auth config live --interval <seconds>\n");
+            try out.writeAll("  codex-auth config skip-api on|off\n");
         },
         .app => {
             try out.writeAll("  codex-auth app [--id <id>] [--codex-cli-path <path>] [--codex-home <path>] [--platform win|wsl|mac]\n");
@@ -266,6 +270,8 @@ fn writeOptionLines(out: *std.Io.Writer, topic: HelpTopic) !void {
         },
         .login => {
             try out.writeAll("  --device-auth   Run `codex login --device-auth` before adding the account.\n");
+            try out.writeAll("  --alias <alias> Set an alias for the account added by this login.\n");
+            try out.writeAll("  --skip-api      Skip the account-name refresh API call after login.\n");
         },
         .import_auth => {
             try out.writeAll("  <path>           Import one auth file or every supported auth file in a directory.\n");
@@ -302,6 +308,8 @@ fn writeOptionLines(out: *std.Io.Writer, topic: HelpTopic) !void {
         .config => {
             try out.writeAll("  live --interval <seconds>\n");
             try out.writeAll("                    Set the live TUI refresh interval from 5 to 3600 seconds.\n");
+            try out.writeAll("  skip-api on|off\n");
+            try out.writeAll("                    Persistently skip usage and account API server calls (default off).\n");
         },
         .app => {
             try out.writeAll("  --id <id>          Windows package/AUMID or macOS bundle identifier.\n");
@@ -340,6 +348,7 @@ fn writeExampleLines(out: *std.Io.Writer, topic: HelpTopic) !void {
         .login => {
             try out.writeAll("  codex-auth login\n");
             try out.writeAll("  codex-auth login --device-auth\n");
+            try out.writeAll("  codex-auth login --alias work --skip-api\n");
         },
         .import_auth => {
             try out.writeAll("  codex-auth import /path/to/auth.json --alias personal\n");
